@@ -19,4 +19,4 @@ diff:
 	cdk diff --fail
 
 deploy:
-	cdk deploy
+	cdk deploy --require-approval never
