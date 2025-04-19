@@ -84,5 +84,4 @@ jobs:
       - name: Run linting
         run: |
           source activate_venv.sh
-          echo "Using Python at: $(which python)"
-          make lint
+          pylint src tests aws
