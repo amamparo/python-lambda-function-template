@@ -1,14 +1,19 @@
 from typing import Optional
 
+from injector import inject, Injector
 
-def main() -> None:
-    print('hello world')
+from src.environment import Environment
+
+
+@inject
+def main(environment: Environment) -> None:
+    print(f'hello {environment.get('NAME')}')
 
 
 # pylint: disable=unused-argument
 def lambda_handler(event: Optional[dict] = None, context: Optional[dict] = None) -> None:
-    main()
+    Injector().call_with_injection(main)
 
 
 if __name__ == '__main__':
-    main()
+    Injector().call_with_injection(main)

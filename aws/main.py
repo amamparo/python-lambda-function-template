@@ -23,7 +23,8 @@ class PythonLambdaFunction(Stack):
             ),
             architecture=Architecture.ARM_64,
             environment={
-                'SECRET_ARN': secret.secret_arn
+                'SECRET_ARN': secret.secret_arn,
+                'NAME': 'Alice'
             },
             timeout=Duration.minutes(15)
         )
