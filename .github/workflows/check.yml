@@ -10,30 +10,24 @@ jobs:
       cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
-
       - id: cache-key
         run: |
           HASH=$(sha256sum poetry.lock | cut -d ' ' -f1)
           echo "value=venv-${{ runner.os }}-python-${{ env.python-version }}-$HASH" >> $GITHUB_OUTPUT
-
       - uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-
+      - run: poetry install --no-interaction --no-root
       - uses: actions/cache@v4
         with:
           path: .venv
           key: ${{ steps.cache-key.outputs.value }}
 
-  checks:
+  check:
     needs: setup
     runs-on: ubuntu-latest
     strategy:
