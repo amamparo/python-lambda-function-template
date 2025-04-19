@@ -33,20 +33,10 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
 
-      - name: Create activation script
-        run: |
-          echo '#!/bin/bash' > activate_venv.sh
-          echo 'export VIRTUAL_ENV="${GITHUB_WORKSPACE}/.venv"' >> activate_venv.sh
-          echo 'export PATH="${VIRTUAL_ENV}/bin:${PATH}"' >> activate_venv.sh
-          echo 'echo "🐍 Virtualenv activated. Python: $(which python)"' >> activate_venv.sh
-          chmod +x activate_venv.sh
-
       - name: Cache virtualenv
         uses: actions/cache@v4
         with:
-          path: |
-            .venv
-            activate_venv.sh
+          path: .venv
           key: ${{ steps.cache-key.outputs.value }}
 
   lint:
@@ -61,12 +51,8 @@ jobs:
 
       - uses: actions/cache@v4
         with:
-          path: |
-            .venv
-            activate_venv.sh
+          path: .venv
           key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
-      - run: |
-          source activate_venv.sh
-          pylint src tests aws
+      - run: .venv/bin/pylint src tests aws
