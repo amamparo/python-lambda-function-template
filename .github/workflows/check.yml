@@ -55,4 +55,4 @@ jobs:
           key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
-      - run: .venv/bin/pylint src tests aws
+      - run: make lint
