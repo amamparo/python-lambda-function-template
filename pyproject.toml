@@ -1,5 +1,5 @@
 [project]
-name = "python-template"
+name = "python-lambda-function-template"
 version = "0.1.0"
 description = ""
 authors = [
@@ -17,4 +17,8 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.group.dev.dependencies]
 pylint = "^3.3.6"
 mypy = "^1.15.0"
+aws-cdk-lib = "^2.190.0"
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
