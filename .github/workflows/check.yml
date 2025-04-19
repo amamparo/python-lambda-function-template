@@ -22,8 +22,7 @@ jobs:
         id: cache-key
         run: |
           HASH=$(sha256sum poetry.lock | cut -d ' ' -f1)
-          CACHE_KEY="venv-${{ runner.os }}-python-${{ env.python-version }}-$HASH"
-          echo "value=$CACHE_KEY" >> $GITHUB_OUTPUT
+          echo "value=venv-${{ runner.os }}-python-${{ env.python-version }}-$HASH" >> $GITHUB_OUTPUT
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -68,6 +67,6 @@ jobs:
           key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
-      - run: source activate_venv.sh
-
-      - run: pylint src tests aws
+      - run: |
+          source activate_venv.sh
+          pylint src tests aws
