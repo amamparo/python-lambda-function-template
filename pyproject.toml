@@ -3,7 +3,7 @@ name = "python-lambda-function-template"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Aaron Mamparo",email = "aaronmamparo@gmail.com"}
+    { name = "Aaron Mamparo", email = "aaronmamparo@gmail.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.13,<4"
