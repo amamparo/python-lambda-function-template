@@ -56,14 +56,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
 
-      - name: Restore virtualenv
-        id: restore-cache
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             .venv
@@ -71,7 +68,6 @@ jobs:
           key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
-      - name: Run linting
-        run: |
-          source activate_venv.sh
-          pylint src tests aws
+      - run: source activate_venv.sh
+
+      - run: pylint src tests aws
