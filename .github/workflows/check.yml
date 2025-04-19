@@ -1,6 +1,6 @@
 name: Check
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 env:
   python-version: 3.13
@@ -103,3 +103,37 @@ jobs:
           virtualenvs-in-project: true
 
       - run: make test
+
+  diff:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
+
+      - uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
+
+      - uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+
+      - env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: make diff
