@@ -7,32 +7,35 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       python-version: ${{ steps.get-python-version.outputs.version }}
-      cache-key: ${{ steps.generate-cache-key.outputs.key }}
+      cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Get Python version
         id: get-python-version
         run: |
-          PYTHON_VERSION=$(cat .python-version)
+          PYTHON_VERSION=$(cat .python-version 2>/dev/null)
           echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ steps.get-python-version.outputs.version }}
-      
+
       - name: Generate cache key
-        id: generate-cache-key
+        id: cache-key
         run: |
-          echo "key=venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-python-${{ steps.get-python-version.outputs.version }}" >> $GITHUB_OUTPUT
-      
+          HASH=$(sha256sum poetry.lock | cut -d ' ' -f1)
+          CACHE_KEY="venv-${{ runner.os }}-python-${{ steps.get-python-version.outputs.version }}-$HASH"
+          echo "Using cache key: $CACHE_KEY"
+          echo "value=$CACHE_KEY" >> $GITHUB_OUTPUT
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-      
+
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
 
@@ -41,16 +44,21 @@ jobs:
           echo '#!/bin/bash' > activate_venv.sh
           echo 'export VIRTUAL_ENV="${GITHUB_WORKSPACE}/.venv"' >> activate_venv.sh
           echo 'export PATH="${VIRTUAL_ENV}/bin:${PATH}"' >> activate_venv.sh
-          echo 'echo "Virtualenv activated. Python: $(which python)"' >> activate_venv.sh
+          echo 'echo "🐍 Virtualenv activated. Python: $(which python)"' >> activate_venv.sh
           chmod +x activate_venv.sh
-      
+
       - name: Cache virtualenv
         uses: actions/cache@v4
         with:
           path: |
             .venv
             activate_venv.sh
-          key: ${{ steps.generate-cache-key.outputs.key }}
+          key: ${{ steps.cache-key.outputs.value }}
+
+      - name: Debug outputs
+        run: |
+          echo "Python version: ${{ steps.get-python-version.outputs.version }}"
+          echo "Cache key: ${{ steps.cache-key.outputs.value }}"
 
   lint:
     needs: setup
@@ -64,15 +72,17 @@ jobs:
           python-version: ${{ needs.setup.outputs.python-version }}
 
       - name: Restore virtualenv
+        id: restore-cache
         uses: actions/cache@v4
         with:
-          path: .venv
+          path: |
+            .venv
+            activate_venv.sh
           key: ${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
 
       - name: Run linting
         run: |
-          export PATH="$GITHUB_WORKSPACE/.venv/bin:$PATH"
-          which python
-          python --version
-          pylint src tests aws
+          source activate_venv.sh
+          echo "Using Python at: $(which python)"
+          make lint
