@@ -2,32 +2,27 @@ name: Check
 
 on: [push, pull_request]
 
+env:
+  python-version: 3.13
+
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      python-version: ${{ steps.get-python-version.outputs.version }}
       cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Python version
-        id: get-python-version
-        run: |
-          PYTHON_VERSION=$(cat .python-version 2>/dev/null)
-          echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ steps.get-python-version.outputs.version }}
+          python-version: ${{ env.python-version }}
 
       - name: Generate cache key
         id: cache-key
         run: |
           HASH=$(sha256sum poetry.lock | cut -d ' ' -f1)
-          CACHE_KEY="venv-${{ runner.os }}-python-${{ steps.get-python-version.outputs.version }}-$HASH"
-          echo "Using cache key: $CACHE_KEY"
+          CACHE_KEY="venv-${{ runner.os }}-python-${{ env.python-version }}-$HASH"
           echo "value=$CACHE_KEY" >> $GITHUB_OUTPUT
 
       - name: Install Poetry
@@ -55,11 +50,6 @@ jobs:
             activate_venv.sh
           key: ${{ steps.cache-key.outputs.value }}
 
-      - name: Debug outputs
-        run: |
-          echo "Python version: ${{ steps.get-python-version.outputs.version }}"
-          echo "Cache key: ${{ steps.cache-key.outputs.value }}"
-
   lint:
     needs: setup
     runs-on: ubuntu-latest
@@ -69,7 +59,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ needs.setup.outputs.python-version }}
+          python-version: ${{ env.python-version }}
 
       - name: Restore virtualenv
         id: restore-cache
