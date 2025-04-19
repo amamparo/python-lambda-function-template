@@ -16,4 +16,4 @@ def lambda_handler(event: Optional[dict] = None, context: Optional[dict] = None)
 
 
 if __name__ == '__main__':
-    Injector().call_with_injection(main)
+    lambda_handler()
