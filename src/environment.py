@@ -13,15 +13,14 @@ load_dotenv()
 class Environment:
     @inject
     def __init__(self) -> None:
-        self.__secret_environment: Dict[str, str] = self.__import_from_secret(secret_arn) \
-            if (secret_arn := environ.get('SECRET_ARN')) \
-            else {}
+        secret_arn = environ.get('SECRET_ARN')
+        self.__secret_environment: Dict[str, str] = self.__import_from(secret_arn) if secret_arn else {}
 
     def get(self, name: str) -> Optional[str]:
         return self.__secret_environment.get(name, environ.get(name))
 
     @staticmethod
-    def __import_from_secret(secret_arn: str) -> Dict[str, str]:
+    def __import_from(secret_arn: str) -> Dict[str, str]:
         secret_string = boto3.client('secretsmanager').get_secret_value(SecretId=secret_arn)['SecretString']
         try:
             return json.loads(secret_string)
