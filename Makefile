@@ -13,10 +13,13 @@ types:
 test:
 	poetry run python -m unittest discover -s 'tests' -p '*.py'
 
-check: lint types test
+synth:
+	cdk synth
+
+check: lint types test synth
 
 diff:
-	cdk diff --fail
+	cdk diff
 
 deploy:
 	cdk deploy --require-approval never
