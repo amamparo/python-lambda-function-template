@@ -4,11 +4,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+
+      - name: Read Python version
+        id: python-version
+        run: echo "version=$(cat .python-version | tr -d '\n')" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.13'
+          python-version: ${{ steps.python-version.outputs.version }}
+
       - uses: snok/install-poetry@v1
+
       - run: make install
+
       - run: make lint
+
       - run: make types
+
       - run: make test
