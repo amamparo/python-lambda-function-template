@@ -1,0 +1,14 @@
+on: [ workflow_dispatch, push ]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.13'
+      - uses: snok/install-poetry@v1
+      - run: make install
+      - run: make lint
+      - run: make types
+      - run: make test
