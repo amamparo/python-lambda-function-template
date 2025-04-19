@@ -7,7 +7,7 @@ from src.environment import Environment
 
 @inject
 def main(environment: Environment) -> None:
-    print(f'hello {environment.get('NAME')}')
+    print(f'Hello {environment.get('NAME')}')
 
 
 # pylint: disable=unused-argument
