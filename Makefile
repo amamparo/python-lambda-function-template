@@ -14,7 +14,7 @@ test:
 	poetry run python -m unittest discover -s 'tests' -p '*.py'
 
 synth:
-	cdk synth
+	cdk synth -q
 
 check: lint types test synth
 
